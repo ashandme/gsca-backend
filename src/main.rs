@@ -1,47 +1,59 @@
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{error, post, web, App, HttpResponse, HttpServer, Responder, middleware::Logger};
 use diesel::{prelude::*, r2d2::{ConnectionManager, Pool}};
 use diesel::mysql::MysqlConnection;
-mod database::models;
+use dotenv::dotenv;
+mod database;
+use crate::database::{schema::student, models::*, actions::*};
 type DbPool = Pool<ConnectionManager<MysqlConnection>>;
 
+#[post("/student")]
 async fn add_student(
-    student_info: web::Json<Student>,
     pool: web::Data<DbPool>,
-) -> impl Responder {
-    let student = student_info.into_inner();
-    let conn = pool.get().expect("Error al conectar a la base de datos");
+    form: web::Json<NewStudent>,
+) -> actix_web::Result<impl Responder> {
+    // use web::block to offload blocking Diesel queries without blocking server thread
+    let student = web::block(move || {
+        // note that obtaining a connection from the pool is also potentially blocking
+        let mut conn = pool.get()?;
 
-    // Inserta el estudiante en la base de datos
-    let new_student = diesel::insert_into(students::table)
-        .values(&Student {
-            id: None,
-            nombre: student.nombre,
-            edad: student.edad,
-        })
-        .execute(&conn);
+        insert_new_student(&mut conn, form.dni, &form.name, &form.surname)
+    })
+    .await?
+    // map diesel query errors to a 500 error response
+    .map_err(error::ErrorInternalServerError)?;
 
-    match new_student {
-        Ok(_) => HttpResponse::Ok().body("Estudiante agregado correctamente"),
-        Err(e) => HttpResponse::InternalServerError().body(format!("Error al agregar estudiante: {}", e)),
-    }
+    // user was added successfully; return 201 response with new user info
+    Ok(HttpResponse::Created().json(student))
 }
 
-#[actix_rt::main]
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv().ok();
+    dotenv::dotenv().ok();
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    // Configura la conexión a la base de datos
-    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL no está configurada en .env");
-    let manager = ConnectionManager::<MysqlConnection>::new(database_url);
-    let pool: DbPool = r2d2::Pool::new(manager).expect("Error al crear la pool de conexiones");
+    // initialize DB pool outside of `HttpServer::new` so that it is shared across all workers
+    let pool = initialize_db_pool();
 
-    // Configura y ejecuta el servidor Actix
+    //log::info!("starting HTTP server at http://localhost:8080");
+
     HttpServer::new(move || {
         App::new()
-            .data(pool.clone())
-            .route("/student/add", web::post().to(add_student))
+            // add DB pool handle to app data; enables use of `web::Data<DbPool>` extractor
+            .app_data(web::Data::new(pool.clone()))
+            // add request logger middleware
+            .wrap(Logger::default())
+            // add route handlers
+            .service(add_student)
     })
-    .bind("127.0.0.1:8080")?
+    .bind(("127.0.0.1", 8080))?
     .run()
     .await
+}
+
+fn initialize_db_pool() -> DbPool {
+    let conn_spec = std::env::var("DATABASE_URL").expect("DATABASE_URL should be set");
+    let manager = ConnectionManager::<MysqlConnection>::new(conn_spec);
+    Pool::builder()
+        .build(manager)
+        .expect("database URL should be valid path to SQLite DB file")
 }
