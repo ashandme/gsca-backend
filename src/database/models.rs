@@ -19,3 +19,14 @@ pub struct NewStudent {
     pub name: String,
     pub surname: String,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[diesel(table_name = user)]
+pub struct User {
+    pub id_user: i32,
+    pub dni: i32,
+    secret: String,
+    email: String,
+    rol: String,
+    alias: String,
+}

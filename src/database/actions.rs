@@ -1,23 +1,22 @@
 use diesel::prelude::*;
-use uuid::Uuid;
+// use uuid::Uuid;
 use crate::database::models;
 type DbError = Box<dyn std::error::Error + Send + Sync>;
 
 /// Run query using Diesel to find user by uid and return it.
-/*pub fn find_user_by_uid(
-    conn: &mut SqliteConnection,
-    uid: Uuid,
-) -> Result<Option<models::User>, DbError> {
-    use crate::schema::users::dsl::*;
+pub fn find_student_by_id(
+    conn: &mut MysqlConnection,
+    id: i32,
+) -> Result<Option<models::Student>, DbError> {
+    use crate::database::schema::student::dsl::*;
 
-    let user = users
-        .filter(id.eq(uid.to_string()))
-        .first::<models::User>(conn)
+    let istudent = student
+        .find(id)
+        .first::<models::Student>(conn)
         .optional()?;
 
-    Ok(user)
+    Ok(istudent)
 }
-*/
 
 /// Run query using Diesel to insert a new database row and return the result.
 pub fn insert_new_student(
