@@ -1,0 +1,6 @@
+/target/
+/Cargo.lock
+/.env
+/app.db
+/static/*
+/css/*

@@ -1,0 +1,12 @@
+[package]
+name = "gsca"
+version = "0.1.0"
+authors = ["ashandme <ash@ashlandia.me>"]
+edition = "2021"
+
+[dependencies]
+actix-web = "4"
+actix-rt = "2.9"
+jsonwebtoken = "8"
+diesel = { version = "2", features = ["mysql"] }
+dotenv = "0.15"
