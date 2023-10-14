@@ -1,10 +1,18 @@
-use actix_web::{error, get , post, web, App, HttpResponse, HttpServer, Responder, middleware::Logger};
-use diesel::{prelude::*, r2d2::{ConnectionManager, Pool}};
-use diesel::mysql::MysqlConnection;
+use actix_web::{error, get, post, web,
+		App, HttpResponse, HttpServer, Responder,
+		middleware::{Logger, NormalizePath}, cookie::{time::Duration, Key}};
+use actix_identity::{Identity, IdentityMiddleware};
+use actix_session::{config::PersistentSession, storage::CookieSessionStore, SessionMiddleware};
+use diesel::{prelude::*, mysql::MysqlConnection, r2d2::{ConnectionManager, Pool}};
 use dotenv::dotenv;
+
 mod database;
+mod auth;
+
 use crate::database::{schema::student, models::*, actions::*};
 type DbPool = Pool<ConnectionManager<MysqlConnection>>;
+
+const ONE_MINUTE: Duration = Duration::minutes(1);
 
 #[get("/student/{studentx_id}")]
 async fn get_student(
@@ -35,6 +43,7 @@ async fn get_student(
 #[post("/student")]
 async fn add_student(
     pool: web::Data<DbPool>,
+    identity: Option<Identity>,
     form: web::Json<NewStudent>,
 ) -> actix_web::Result<impl Responder> {
     let student = web::block(move || {
@@ -53,20 +62,26 @@ async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-    // initialize DB pool outside of `HttpServer::new` so that it is shared across all workers
     let pool = initialize_db_pool();
 
-    //log::info!("starting HTTP server at http://localhost:8080");
-
+    log::info!("starting HTTP server at http://localhost:8080");
+    let secret_key = Key::generate();
     HttpServer::new(move || {
-        App::new()
-            // add DB pool handle to app data; enables use of `web::Data<DbPool>` extractor
-            .app_data(web::Data::new(pool.clone()))
-            // add request logger middleware
+	App::new()
+	    .app_data(web::Data::new(pool.clone()))
+	    .service(web::resource("/login").route(web::post().to(auth::login)))
+            .service(web::resource("/logout").route(web::post().to(auth::logout)))
+            .service(get_student)
+	    .service(add_student)
+            .wrap(IdentityMiddleware::default())
+            .wrap(SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())
+		  .cookie_name("auth-token".to_owned())
+		  .cookie_secure(false)
+		  .session_lifecycle(PersistentSession::default().session_ttl(ONE_MINUTE))
+		  .build(),
+	    )
+	    .wrap(NormalizePath::trim())
             .wrap(Logger::default())
-        // add route handlers
-	    .service(get_student)
-            .service(add_student)
     })
     .bind(("127.0.0.1", 8080))?
     .run()

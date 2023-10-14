@@ -1,53 +1,33 @@
-use jsonwebtoken::{decode, DecodingKey, Validation};
-use actix_service::Service;
-use actix_web::dev::{ServiceRequest, ServiceResponse, Transform};
-use std::pin::Pin;
-use futures::future::{ok, Ready};
+use actix_identity::{Identity, IdentityMiddleware};
+use actix_session::{config::PersistentSession, storage::CookieSessionStore, SessionMiddleware};
+use actix_web::{
+    cookie::{time::Duration, Key},
+    error,
+    HttpMessage as _,
+    http::StatusCode,
+    middleware, web, App, HttpRequest, HttpServer, Responder,
+};
 
-pub struct JwtMiddleware;
+const ONE_MINUTE: Duration = Duration::minutes(1);
 
-impl<S, B> Transform<S> for JwtMiddleware
-where
-    S: Service<Request = ServiceRequest, Response = ServiceResponse<B>, Error = actix_web::Error>,
-{
-    type Request = ServiceRequest;
-    type Response = ServiceResponse<B>;
-    type Error = actix_web::Error;
-    type Transform = JwtMiddlewareTransform<S>;
-    type InitError = ();
-    fn new_transform(&self, service: S) -> Self::Transform {
-        JwtMiddlewareTransform { service }
-    }
+/* async fn index(identity: Option<Identity>) -> actix_web::Result<impl Responder> {
+    let id = match identity.map(|id| id.id()) {
+        None => "anonymous".to_owned(),
+        Some(Ok(id)) => id,
+        Some(Err(err)) => return Err(error::ErrorInternalServerError(err)),
+    };
+
+    Ok(format!("Hello {id}"))
+}*/
+
+pub async fn login(req: HttpRequest) -> impl Responder {
+    Identity::login(&req.extensions(), "user1".to_owned()).unwrap();
+
+    web::Redirect::to("/").using_status_code(StatusCode::FOUND)
 }
 
-pub struct JwtMiddlewareTransform<S> {
-    service: S,
-}
+pub async fn logout(id: Identity) -> impl Responder {
+    id.logout();
 
-impl<S, B> Service for JwtMiddlewareTransform<S>
-where
-    S: Service<Request = ServiceRequest, Response = ServiceResponse<B>, Error = actix_web::Error>,
-{
-    type Request = ServiceRequest;
-    type Response = ServiceResponse<B>;
-    type Error = actix_web::Error;
-    type Future = Pin<Box<dyn futures::Future<Output = Result<Self::Response, Self::Error>>>>;
-
-    fn poll_ready(&mut self, ctx: &mut std::task::Context<'_>) -> std::task::Poll<Result<(), Self::Error>> {
-        self.service.poll_ready(ctx)
-    }
-
-    fn call(&mut self, req: ServiceRequest) -> Self::Future {
-        // Aquí verificas el JWT en el encabezado de la solicitud
-        // Si es válido, permites que continúe, de lo contrario, respondes con un error
-        Box::pin(async { Ok(req.into_response(HttpResponse::Unauthorized())) })
-    }
-}
-
-#[post("/login")]
-async fn login() -> HttpResponse {
-    // Aquí debes verificar las credenciales y generar el JWT si son válidas
-    // Por ejemplo:
-    let token = encode(...)?;
-    HttpResponse::Ok().json(token)
+    web::Redirect::to("/").using_status_code(StatusCode::FOUND)
 }

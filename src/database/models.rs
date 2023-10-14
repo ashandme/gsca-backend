@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize,};
 use diesel::{Queryable, Insertable,};
 
-use crate::database::schema::student;
+use crate::database::schema::{student, user};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 #[diesel(table_name = student)]
