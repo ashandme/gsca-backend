@@ -25,8 +25,14 @@ pub struct NewStudent {
 pub struct User {
     pub id_user: i32,
     pub dni: i32,
-    secret: String,
-    email: String,
-    rol: String,
-    alias: String,
+    pub secret: String,
+    pub email: String,
+    pub rol: String,
+    pub alias: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct LogUser {
+    pub alias: String,
+    pub secret: String,
 }

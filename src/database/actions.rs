@@ -18,6 +18,18 @@ pub fn find_student_by_id(
     Ok(istudent)
 }
 
+pub fn get_user(
+    conn: &mut MysqlConnection,
+    nm: String,
+) -> Result<Option<models::User>, DbError> {
+    use crate::database::schema::user::dsl::*;
+    let iuser = user
+	.filter(alias.eq(nm))
+	.first::<models::User>(conn)
+	.optional()?;
+    Ok(iuser)
+}
+
 /// Run query using Diesel to insert a new database row and return the result.
 pub fn insert_new_student(
     conn: &mut MysqlConnection,
@@ -32,7 +44,7 @@ pub fn insert_new_student(
     // TODO temporal values
     let new_student = models::Student {
         id_student: 0,
-	id_fingerprint: Some(0),
+	id_fingerprint: None,
 	dni: sdni.to_owned(), 
         name: nm.to_owned(),
 	surname: snm.to_owned(),
