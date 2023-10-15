@@ -6,27 +6,21 @@ type DbError = Box<dyn std::error::Error + Send + Sync>;
 /// Run query using Diesel to find user by uid and return it.
 pub fn find_student_by_id(
     conn: &mut MysqlConnection,
-    id: i32,
+    sid: u32,
 ) -> Result<Option<models::Student>, DbError> {
     use crate::database::schema::student::dsl::*;
 
-    let istudent = student
-        .find(id)
-        .first::<models::Student>(conn)
-        .optional()?;
+    let istudent = student.find(sid).first::<models::Student>(conn).optional()?;
 
     Ok(istudent)
 }
 
-pub fn get_user(
-    conn: &mut MysqlConnection,
-    nm: String,
-) -> Result<Option<models::User>, DbError> {
+pub fn get_user(conn: &mut MysqlConnection, nm: String) -> Result<Option<models::User>, DbError> {
     use crate::database::schema::user::dsl::*;
     let iuser = user
-	.filter(alias.eq(nm))
-	.first::<models::User>(conn)
-	.optional()?;
+        .filter(alias.eq(nm))
+        .first::<models::User>(conn)
+        .optional()?;
     Ok(iuser)
 }
 
@@ -43,14 +37,16 @@ pub fn insert_new_student(
     use crate::database::schema::student::dsl::*;
     // TODO temporal values
     let new_student = models::Student {
-        id_student: 0,
-	id_fingerprint: None,
-	dni: sdni.to_owned(), 
+        id: 0,
+        id_fingerprint: None,
+        dni: sdni.to_owned(),
         name: nm.to_owned(),
-	surname: snm.to_owned(),
+        surname: snm.to_owned(),
     };
 
-    diesel::insert_into(student).values(&new_student).execute(conn)?;
+    diesel::insert_into(student)
+        .values(&new_student)
+        .execute(conn)?;
 
     Ok(new_student)
 }

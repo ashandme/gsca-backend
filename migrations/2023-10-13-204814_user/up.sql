@@ -1,11 +1,10 @@
 -- Your SQL goes her
 CREATE TABLE user (
-    id_user INT NOT NULL,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     dni INT NOT NULL,
     secret VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
-    rol VARCHAR(15) NOT NULL,
-    alias VARCHAR(20) NOT NULL,
-    PRIMARY KEY(id_user),
+    rol VARCHAR(16) NOT NULL,
+    alias VARCHAR(32) NOT NULL,
     UNIQUE KEY(dni)
 );

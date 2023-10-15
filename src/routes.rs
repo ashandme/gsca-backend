@@ -1,10 +1,12 @@
 extern crate bcrypt;
 
-use actix_web::{error, web, http::StatusCode, HttpResponse, Responder, HttpRequest, HttpMessage as _};
 use actix_identity::Identity;
-use bcrypt::{DEFAULT_COST, hash, verify};
+use actix_web::{
+    error, http::StatusCode, web, HttpMessage as _, HttpRequest, HttpResponse, Responder,
+};
+use bcrypt::{hash, verify, DEFAULT_COST};
 
-use crate::database::{schema::student, models::*, actions::*, DbPool};
+use crate::database::{actions::*, models::*, schema::student, DbPool};
 
 pub async fn is_logged(identity: Option<Identity>) -> actix_web::Result<impl Responder> {
     let id = match identity.map(|id| id.id()) {
@@ -23,27 +25,24 @@ pub async fn login(
 ) -> actix_web::Result<impl Responder> {
     let log_user = form.into_inner();
     let fuser = web::block(move || {
-	let mut conn = pool.get()?;
-	get_user(&mut conn, log_user.alias)
-    }).await?
-	.map_err(error::ErrorInternalServerError)?;
+        let mut conn = pool.get()?;
+        get_user(&mut conn, log_user.alias)
+    })
+    .await?
+    .map_err(error::ErrorInternalServerError)?;
     match fuser {
-	Some(fuser) => {
-	    let v = verify(&log_user.secret.as_str(), fuser.secret.as_str()).unwrap();
-	    match v {
-		true => {
-		    Identity::login(&req.extensions(), fuser.alias.as_str().to_owned()).unwrap();
-		    return Ok(web::Redirect::to("/").using_status_code(StatusCode::FOUND))
-		}
-		false => {
-		    return Ok(web::Redirect::to("/").using_status_code(StatusCode::NOT_FOUND))
-		}
-		_ => {
-		    return Err(error::ErrorNotFound("bad password"))
-		}
-	    };	
-	}
-	None => Err(error::ErrorInternalServerError("500")),
+        Some(fuser) => {
+            let v = verify(&log_user.secret.as_str(), fuser.secret.as_str()).unwrap();
+            match v {
+                true => {
+                    Identity::login(&req.extensions(), fuser.alias.as_str().to_owned()).unwrap();
+                    return Ok(web::Redirect::to("/").using_status_code(StatusCode::FOUND));
+                }
+                false => return Ok(web::Redirect::to("/").using_status_code(StatusCode::NOT_FOUND)),
+                _ => return Err(error::ErrorNotFound("bad password")),
+            };
+        }
+        None => Err(error::ErrorInternalServerError("500")),
     }
 }
 
@@ -51,11 +50,12 @@ pub async fn logout(id: Identity) -> impl Responder {
     id.logout();
     web::Redirect::to("/").using_status_code(StatusCode::FOUND)
 }
+
 pub async fn get_student(
     pool: web::Data<DbPool>,
-    pid: web::Path<i32>,
+    pid: web::Path<u32>,
 ) -> actix_web::Result<impl Responder> {
-    //let user_uid = user_uid.into_inner();
+    
     let id = pid.into_inner();
     let fstudent = web::block(move || {
         // note that obtaining a connection from the pool is also potentially blocking
@@ -84,7 +84,7 @@ pub async fn add_student(
     })
     .await?
     // map diesel query errors to a 500 error response
-	.map_err(error::ErrorInternalServerError)?;
+    .map_err(error::ErrorInternalServerError)?;
     // user was added successfully; return 201 response with new user info
     Ok(HttpResponse::Created().json(student))
 }

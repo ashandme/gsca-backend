@@ -1,10 +1,9 @@
 -- Your SQL goes her
 -- The date and time when a class start in a DAY
-CREATE TABLE class_time(
+CREATE TABLE class_day(
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     day TINYINT NOT NULL,
-    id_class INT NOT NULL,
-    time_out DATETIME NOT NULL,
-    time_in DATETIME NOT NULL,
-    PRIMARY KEY(id_class, day),
-    FOREIGN KEY (id_class) REFERENCES class(id_class)
+    id_class INT UNSIGNED REFERENCES class(id),
+    time_out TIME NOT NULL,
+    time_in TIME NOT NULL
 );

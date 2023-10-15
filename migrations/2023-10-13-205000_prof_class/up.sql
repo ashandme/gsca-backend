@@ -1,10 +1,7 @@
 -- Your SQL goes here
 
 CREATE TABLE prof_class(
-    id_profe INT NOT NULL,
-    id_class INT NOT NULL,
-    id_user INT NOT NULL,
-    PRIMARY KEY(id_profe),
-    FOREIGN KEY (id_class) REFERENCES class(id_class),
-    FOREIGN KEY (id_user) REFERENCES user(id_user)
+    id_class INT UNSIGNED REFERENCES class(id),
+    id_user INT UNSIGNED REFERENCES user(id),
+    PRIMARY KEY(id_user, id_class)
 );

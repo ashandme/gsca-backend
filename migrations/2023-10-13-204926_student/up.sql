@@ -1,11 +1,9 @@
 -- Your SQL goes here
-
 CREATE TABLE student(
-    id_student INT NOT NULL,
-    id_fingerprint INT,
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_fingerprint INT UNSIGNED,
     dni INT NOT NULL,
     name VARCHAR(20) NOT NULL,
     surname VARCHAR(20) NOT NULL,
-    PRIMARY KEY(id_student),
     UNIQUE KEY(dni)
 );
