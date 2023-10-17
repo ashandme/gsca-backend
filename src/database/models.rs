@@ -14,7 +14,8 @@ pub struct Student {
     pub surname: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Insertable, Serialize, Deserialize, Debug, Clone, Queryable)]
+#[diesel(table_name = student)]
 pub struct NewStudent {
     pub dni: i32,
     pub name: String,
@@ -50,11 +51,19 @@ pub struct LogUser {
 #[diesel(table_name = class)]
 pub struct Class {
     pub id: u32,
-    pub area: String,
+    pub area: Option<String>,
     pub subject: String,
     pub year_div: String,
     pub date_start: NaiveDate,
     pub date_end: NaiveDate,
 }
 
-
+#[derive(Insertable, Serialize, Deserialize, Debug, Queryable)]
+#[diesel(table_name = class)]
+pub struct NewClass {
+    pub area: Option<String>,
+    pub subject: String,
+    pub year_div: String,
+    pub date_start: NaiveDate,
+    pub date_end: NaiveDate,
+}

@@ -78,13 +78,12 @@ pub async fn add_student(
     identity: Option<Identity>,
     form: web::Json<NewStudent>,
 ) -> actix_web::Result<impl Responder> {
-    let student = web::block(move || {
-        let mut conn = pool.get()?;
-        insert_new_student(&mut conn, form.dni, &form.name, &form.surname)
-    })
-    .await?
-    // map diesel query errors to a 500 error response
-    .map_err(error::ErrorInternalServerError)?;
-    // user was added successfully; return 201 response with new user info
-    Ok(HttpResponse::Created().json(student))
+    let mut conn = pool.get().unwrap();
+    match insert_new_student(&mut conn,
+                             form.dni,
+                             &form.name,
+                             &form.surname) {
+        Ok(x) => Ok(HttpResponse::Created().json(x)),
+        Err(e) => Err(error::ErrorInternalServerError(e)),
+    }
 }
