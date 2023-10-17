@@ -2,6 +2,8 @@
 
 backend para gsca escrito en rust
 
+![Representación de mi Proyecto](./img/rep.png)
+
 ## Tabla de Contenidos
 
 - [Requisitos](#requisitos)
@@ -44,5 +46,7 @@ Solo soporta MySQL pero es fácil portearlo para otras bases de datos como Postg
 ## Contribuciones
 
 Alexander: Base de datos
+
 Camila: Frontend
+
 Nico: Documentación y Base de datos
