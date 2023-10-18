@@ -3,7 +3,7 @@
 CREATE TABLE class_day(
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     day TINYINT NOT NULL,
-    id_class INT UNSIGNED REFERENCES class(id),
+    id_class INT UNSIGNED REFERENCES class(id) NOT NULL,
     time_out TIME NOT NULL,
     time_in TIME NOT NULL
 );
