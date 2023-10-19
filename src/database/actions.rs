@@ -72,3 +72,10 @@ pub fn insert_new_class(
 
     Ok(last_inserted_id)
 }
+
+pub fn insert_class_day(
+    conn: &mut MysqlConnection,
+    day: i8,
+    id_class: Option<u32>
+){
+}

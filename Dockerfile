@@ -9,13 +9,9 @@ RUN cargo install diesel_cli --no-default-features --features mysql
 
 RUN cargo install --path .
 
-ENV DB_URL=mysql://admin:admin@localhost/base
+ENV DATABASE_URL=mysql://admin:admin@localhost/base
 
-RUN echo "sed 's~DATABASE_URL=~${DB_URL}~' /usr/src/gsca-backend/.env.template > /usr/src/gsca-backend/.env" > /create_env.sh"
-RUN chmod +x /app/create_env.sh && /app/create_env.sh
-RUN diesel migration run
-
-CMD ["gsca"] 
+CMD bash -c "diesel setup && gsca" 
 
 EXPOSE 8080
 
