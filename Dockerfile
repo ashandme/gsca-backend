@@ -1,4 +1,4 @@
-FROM rust:1.67
+FROM rust:1.73
 
 WORKDIR /usr/src/gsca-backend
 COPY . .
@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y default-libmysqlclient-dev
 
 RUN cargo install diesel_cli --no-default-features --features mysql
 
-RUN cargo install --path
+RUN cargo install --path .
 
 ENV DB_URL=mysql://admin:admin@localhost/base
 
