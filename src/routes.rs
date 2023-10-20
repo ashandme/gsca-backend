@@ -73,6 +73,28 @@ pub async fn get_student(
     })
 }
 
+pub async fn get_class(
+    pool: web::Data<DbPool>,
+    pid: web::Path<u32>,
+) -> actix_web::Result<impl Responder> {
+    
+    let id = pid.into_inner();
+    let fclass = web::block(move || {
+        // note that obtaining a connection from the pool is also potentially blocking
+        let mut conn = pool.get()?;
+
+        find_class_by_id(&mut conn, id)
+    })
+    .await?
+    .map_err(error::ErrorInternalServerError)?;
+
+    Ok(match fclass {
+        Some(fclass) => HttpResponse::Ok().json(fclass),
+
+        None => HttpResponse::NotFound().body(format!("No user found with ID: {id}")),
+    })
+}
+
 pub async fn add_student(
     pool: web::Data<DbPool>,
     identity: Option<Identity>,
@@ -83,6 +105,22 @@ pub async fn add_student(
                              form.dni,
                              &form.name,
                              &form.surname) {
+        Ok(x) => Ok(HttpResponse::Created().json(x)),
+        Err(e) => Err(error::ErrorInternalServerError(e)),
+    }
+}
+
+pub async fn add_class(
+    pool: web::Data<DbPool>,
+    identity: Option<Identity>,
+    form: web::Json<JsonClass>,
+) -> actix_web::Result<impl Responder> {
+    let mut conn = pool.get().unwrap();
+    match insert_new_class(&mut conn,
+                             Some(&form.area),
+                             &form.subject,
+                           &form.year_div,
+                           (&form.time_out, &form.time_in)) {
         Ok(x) => Ok(HttpResponse::Created().json(x)),
         Err(e) => Err(error::ErrorInternalServerError(e)),
     }

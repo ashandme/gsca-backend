@@ -61,16 +61,16 @@ pub fn insert_new_student(
 
 pub fn insert_new_class(
     conn: &mut MysqlConnection,
-    a: Option<String>,
-    sub: String,
-    yd: String,
-    dts: (String, String),
+    a: Option<&String>,
+    sub: &String,
+    yd: &String,
+    dts: (&String, &String),
 ) -> Result<u32, DbError> {
     use crate::database::schema::class::dsl::*;
     let new_class = models::NewClass{
-        area: a,
-        subject: sub,
-        year_div: yd,
+        area: a.cloned(),
+        subject: sub.to_string(),
+        year_div: yd.to_string(),
         date_start: NaiveDate::parse_from_str(dts.0.as_str(), "%d-%m-%Y").unwrap(),
         date_end: NaiveDate::parse_from_str(dts.1.as_str(), "%d-%m-%Y").unwrap(),
     };

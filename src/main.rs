@@ -39,6 +39,7 @@ async fn main() -> std::io::Result<()> {
                 web::resource("/student/{id_student}").route(web::get().to(routes::get_student)),
             )
             .service(web::resource("/student").route(web::post().to(routes::add_student)))
+            .service(web::resource("/class").route(web::post().to(routes::add_class)))
             .wrap(IdentityMiddleware::default())
             .wrap(
                 SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())

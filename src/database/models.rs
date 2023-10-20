@@ -68,6 +68,15 @@ pub struct NewClass {
     pub date_end: NaiveDate,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct JsonClass {
+    pub area: String,
+    pub subject: String,
+    pub year_div: String,
+    pub time_out: String,
+    pub time_in: String,
+}
+
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 #[diesel(table_name = class_day)]
 pub struct ClassDay {
@@ -87,6 +96,14 @@ pub struct NewClassDay {
     pub time_in: NaiveTime,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct JsonClassDay {
+    pub day: i8,
+    pub id_class: u32,
+    pub time_out: String,
+    pub time_in: String,
+}
+
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 #[diesel(table_name = reg)]
 pub struct Reg {
@@ -104,4 +121,12 @@ pub struct NewReg {
     pub class_day: u32,
     pub time_out: NaiveDateTime,
     pub time_in: NaiveDateTime,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct JsonReg {
+    pub id_student: u32,
+    pub class_day: u32,
+    pub time_out: String,
+    pub time_in: String,
 }
