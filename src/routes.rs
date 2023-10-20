@@ -55,7 +55,6 @@ pub async fn get_student(
     pool: web::Data<DbPool>,
     pid: web::Path<u32>,
 ) -> actix_web::Result<impl Responder> {
-    
     let id = pid.into_inner();
     let fstudent = web::block(move || {
         // note that obtaining a connection from the pool is also potentially blocking
@@ -77,7 +76,6 @@ pub async fn get_class(
     pool: web::Data<DbPool>,
     pid: web::Path<u32>,
 ) -> actix_web::Result<impl Responder> {
-    
     let id = pid.into_inner();
     let fclass = web::block(move || {
         // note that obtaining a connection from the pool is also potentially blocking
@@ -101,10 +99,7 @@ pub async fn add_student(
     form: web::Json<NewStudent>,
 ) -> actix_web::Result<impl Responder> {
     let mut conn = pool.get().unwrap();
-    match insert_new_student(&mut conn,
-                             form.dni,
-                             &form.name,
-                             &form.surname) {
+    match insert_new_student(&mut conn, form.dni, &form.name, &form.surname) {
         Ok(x) => Ok(HttpResponse::Created().json(x)),
         Err(e) => Err(error::ErrorInternalServerError(e)),
     }
@@ -116,11 +111,13 @@ pub async fn add_class(
     form: web::Json<JsonClass>,
 ) -> actix_web::Result<impl Responder> {
     let mut conn = pool.get().unwrap();
-    match insert_new_class(&mut conn,
-                             Some(&form.area),
-                             &form.subject,
-                           &form.year_div,
-                           (&form.time_out, &form.time_in)) {
+    match insert_new_class(
+        &mut conn,
+        Some(&form.area),
+        &form.subject,
+        &form.year_div,
+        (&form.time_out, &form.time_in),
+    ) {
         Ok(x) => Ok(HttpResponse::Created().json(x)),
         Err(e) => Err(error::ErrorInternalServerError(e)),
     }

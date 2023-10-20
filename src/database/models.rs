@@ -1,8 +1,8 @@
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
-use chrono::{NaiveDate, NaiveTime, NaiveDateTime};
 
-use crate::database::schema::{student, user, class, class_day, reg};
+use crate::database::schema::{class, class_day, reg, student, user};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 #[diesel(table_name = student)]

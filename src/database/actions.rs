@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 // use uuid::Uuid;
 use crate::database::models;
-use chrono::{NaiveDate, NaiveTime, NaiveDateTime};
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 
 type DbError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -12,7 +12,10 @@ pub fn find_student_by_id(
 ) -> Result<Option<models::Student>, DbError> {
     use crate::database::schema::student::dsl::*;
 
-    let istudent = student.find(sid).first::<models::Student>(conn).optional()?;
+    let istudent = student
+        .find(sid)
+        .first::<models::Student>(conn)
+        .optional()?;
 
     Ok(istudent)
 }
@@ -49,12 +52,14 @@ pub fn insert_new_student(
         name: nm.to_owned(),
         surname: snm.to_owned(),
     };
-    
+
     diesel::insert_into(student)
         .values(new_student)
         .execute(conn)?;
-    let last_inserted_id: u32 = diesel::select(diesel::dsl::sql::<diesel::sql_types::Unsigned<diesel::sql_types::Integer>>("LAST_INSERT_ID()"))
-        .get_result(conn)?;
+    let last_inserted_id: u32 = diesel::select(diesel::dsl::sql::<
+        diesel::sql_types::Unsigned<diesel::sql_types::Integer>,
+    >("LAST_INSERT_ID()"))
+    .get_result(conn)?;
 
     Ok(last_inserted_id)
 }
@@ -67,19 +72,19 @@ pub fn insert_new_class(
     dts: (&String, &String),
 ) -> Result<u32, DbError> {
     use crate::database::schema::class::dsl::*;
-    let new_class = models::NewClass{
+    let new_class = models::NewClass {
         area: a.cloned(),
         subject: sub.to_string(),
         year_div: yd.to_string(),
         date_start: NaiveDate::parse_from_str(dts.0.as_str(), "%d-%m-%Y").unwrap(),
         date_end: NaiveDate::parse_from_str(dts.1.as_str(), "%d-%m-%Y").unwrap(),
     };
-    
-    diesel::insert_into(class)
-        .values(new_class)
-        .execute(conn)?;
-    let last_inserted_id: u32 = diesel::select(diesel::dsl::sql::<diesel::sql_types::Unsigned<diesel::sql_types::Integer>>("LAST_INSERT_ID()"))
-        .get_result(conn)?;
+
+    diesel::insert_into(class).values(new_class).execute(conn)?;
+    let last_inserted_id: u32 = diesel::select(diesel::dsl::sql::<
+        diesel::sql_types::Unsigned<diesel::sql_types::Integer>,
+    >("LAST_INSERT_ID()"))
+    .get_result(conn)?;
 
     Ok(last_inserted_id)
 }
@@ -91,18 +96,20 @@ pub fn insert_new_class_day(
     tts: (String, String),
 ) -> Result<u32, DbError> {
     use crate::database::schema::class_day::dsl::*;
-    let new_class_day = models::NewClassDay{
+    let new_class_day = models::NewClassDay {
         day: d,
         id_class: class,
         time_out: NaiveTime::parse_from_str(tts.0.as_str(), "%H:%M:%S").unwrap(),
         time_in: NaiveTime::parse_from_str(tts.1.as_str(), "%H:%M:%S").unwrap(),
     };
-    
+
     diesel::insert_into(class_day)
         .values(new_class_day)
         .execute(conn)?;
-    let last_inserted_id: u32 = diesel::select(diesel::dsl::sql::<diesel::sql_types::Unsigned<diesel::sql_types::Integer>>("LAST_INSERT_ID()"))
-        .get_result(conn)?;
+    let last_inserted_id: u32 = diesel::select(diesel::dsl::sql::<
+        diesel::sql_types::Unsigned<diesel::sql_types::Integer>,
+    >("LAST_INSERT_ID()"))
+    .get_result(conn)?;
 
     Ok(last_inserted_id)
 }
@@ -120,12 +127,12 @@ pub fn insert_new_reg(
         time_out: NaiveDateTime::parse_from_str(tts.0.as_str(), "%d-%m-%Y %H:%M:%S").unwrap(),
         time_in: NaiveDateTime::parse_from_str(tts.1.as_str(), "%d-%m-%Y %H:%M:%S").unwrap(),
     };
-    
-    diesel::insert_into(reg)
-        .values(new_reg)
-        .execute(conn)?;
-    let last_inserted_id: u32 = diesel::select(diesel::dsl::sql::<diesel::sql_types::Unsigned<diesel::sql_types::Integer>>("LAST_INSERT_ID()"))
-        .get_result(conn)?;
+
+    diesel::insert_into(reg).values(new_reg).execute(conn)?;
+    let last_inserted_id: u32 = diesel::select(diesel::dsl::sql::<
+        diesel::sql_types::Unsigned<diesel::sql_types::Integer>,
+    >("LAST_INSERT_ID()"))
+    .get_result(conn)?;
 
     Ok(last_inserted_id)
 }
