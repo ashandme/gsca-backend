@@ -18,7 +18,7 @@ diesel::table! {
     class_day (id) {
         id -> Unsigned<Integer>,
         day -> Tinyint,
-        id_class -> Nullable<Unsigned<Integer>>,
+        id_class -> Unsigned<Integer>,
         time_out -> Time,
         time_in -> Time,
     }
@@ -41,10 +41,10 @@ diesel::table! {
 diesel::table! {
     reg (id) {
         id -> Unsigned<Integer>,
-        id_student -> Nullable<Unsigned<Integer>>,
-        time_in -> Date,
-        time_out -> Date,
-        class_day -> Nullable<Unsigned<Integer>>,
+        id_student -> Unsigned<Integer>,
+        time_in -> Datetime,
+        time_out -> Datetime,
+        class_day -> Unsigned<Integer>,
     }
 }
 

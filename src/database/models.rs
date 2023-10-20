@@ -1,8 +1,8 @@
 use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
-use chrono::NaiveDate;
+use chrono::{NaiveDate, NaiveTime, NaiveDateTime};
 
-use crate::database::schema::{student, user, class};
+use crate::database::schema::{student, user, class, class_day, reg};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 #[diesel(table_name = student)]
@@ -66,4 +66,42 @@ pub struct NewClass {
     pub year_div: String,
     pub date_start: NaiveDate,
     pub date_end: NaiveDate,
+}
+
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[diesel(table_name = class_day)]
+pub struct ClassDay {
+    pub id: u32,
+    pub day: i8,
+    pub id_class: Option<u32>,
+    pub time_out: NaiveTime,
+    pub time_in: NaiveTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, Queryable, Insertable)]
+#[diesel(table_name = class_day)]
+pub struct NewClassDay {
+    pub day: i8,
+    pub id_class: u32,
+    pub time_out: NaiveTime,
+    pub time_in: NaiveTime,
+}
+
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[diesel(table_name = reg)]
+pub struct Reg {
+    pub id: u32,
+    pub id_student: u32,
+    pub class_day: u32,
+    pub time_out: NaiveDateTime,
+    pub time_in: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Deserialize, Queryable, Insertable)]
+#[diesel(table_name = reg)]
+pub struct NewReg {
+    pub id_student: u32,
+    pub class_day: u32,
+    pub time_out: NaiveDateTime,
+    pub time_in: NaiveDateTime,
 }

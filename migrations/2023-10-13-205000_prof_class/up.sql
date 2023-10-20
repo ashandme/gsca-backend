@@ -1,7 +1,7 @@
 -- Your SQL goes here
 
 CREATE TABLE prof_class(
-    id_class INT UNSIGNED REFERENCES class(id) NOT NULL,
-    id_user INT UNSIGNED REFERENCES user(id) NOT NULL,
+    id_class INT UNSIGNED NOT NULL REFERENCES class(id),
+    id_user INT UNSIGNED NOT NULL REFERENCES user(id),
     PRIMARY KEY(id_user, id_class)
 );
