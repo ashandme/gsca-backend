@@ -93,7 +93,7 @@ pub fn insert_new_class_day(
     conn: &mut MysqlConnection,
     d: i8,
     class: u32,
-    tts: (String, String),
+    tts: (&String, &String),
 ) -> Result<u32, DbError> {
     use crate::database::schema::class_day::dsl::*;
     let new_class_day = models::NewClassDay {
@@ -118,7 +118,7 @@ pub fn insert_new_reg(
     conn: &mut MysqlConnection,
     s: u32,
     cd: u32,
-    tts: (String, String),
+    tts: (&String, &String),
 ) -> Result<u32, DbError> {
     use crate::database::schema::reg::dsl::*;
     let new_reg = models::NewReg {

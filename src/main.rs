@@ -1,4 +1,4 @@
-use actix_identity::{Identity, IdentityMiddleware};
+use actix_identity::IdentityMiddleware;
 use actix_session::{config::PersistentSession, storage::CookieSessionStore, SessionMiddleware};
 use actix_web::{
     cookie::{time::Duration, Key},
@@ -36,10 +36,12 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/logout").route(web::post().to(routes::logout)))
             .service(web::resource("/").route(web::get().to(routes::is_logged)))
             .service(
-                web::resource("/student/{id_student}").route(web::get().to(routes::get_student)),
-            )
+                web::resource("/student/{id_student}").route(web::get().to(routes::get_student)))
+            .service(web::resource("/class/{id_class}").route(web::get().to(routes::get_class)))
             .service(web::resource("/student").route(web::post().to(routes::add_student)))
             .service(web::resource("/class").route(web::post().to(routes::add_class)))
+            .service(web::resource("/class-day").route(web::post().to(routes::add_class_day)))
+            .service(web::resource("/reg").route(web::post().to(routes::add_reg)))
             .wrap(IdentityMiddleware::default())
             .wrap(
                 SessionMiddleware::builder(CookieSessionStore::default(), secret_key.clone())

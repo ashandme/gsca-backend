@@ -122,3 +122,38 @@ pub async fn add_class(
         Err(e) => Err(error::ErrorInternalServerError(e)),
     }
 }
+
+pub async fn add_class_day(
+    pool: web::Data<DbPool>,
+    identity: Option<Identity>,
+    form: web::Json<JsonClassDay>,
+) -> actix_web::Result<impl Responder> {
+    let mut conn = pool.get().unwrap();
+    match insert_new_class_day(
+        &mut conn,
+        form.day,
+        form.id_class,
+        (&form.time_out, &form.time_in),
+    ) {
+        Ok(x) => Ok(HttpResponse::Created().json(x)),
+        Err(e) => Err(error::ErrorInternalServerError(e)),
+    }
+}
+
+pub async fn add_reg(
+    pool: web::Data<DbPool>,
+    identity: Option<Identity>,
+    form: web::Json<JsonReg>,
+) -> actix_web::Result<impl Responder> {
+    let mut conn = pool.get().unwrap();
+    match insert_new_reg(
+        &mut conn,
+        form.id_student,
+        form.class_day,
+        (&form.time_out, &form.time_in),
+    ) {
+        Ok(x) => Ok(HttpResponse::Created().json(x)),
+        Err(e) => Err(error::ErrorInternalServerError(e)),
+    }
+}
+
