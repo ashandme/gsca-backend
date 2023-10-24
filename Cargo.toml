@@ -8,6 +8,7 @@ edition = "2021"
 actix-web = "4"
 actix-rt = "2.9"
 actix-identity = "0.6"
+actix-cors = "0.6.4"
 actix-session = { version = "0.8", features = ["cookie-session"] }
 diesel = { version = "2", features = ["mysql", "r2d2", "chrono"] }
 dotenv = "0.15"

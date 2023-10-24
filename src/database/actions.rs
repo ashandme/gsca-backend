@@ -20,6 +20,13 @@ pub fn find_student_by_id(
     Ok(istudent)
 }
 
+pub fn get_all_students(
+    conn: &mut MysqlConnection,
+) -> Result<Option<Vec<models::Student>>, DbError> {
+    use crate::database::schema::student::dsl::*;
+    let vstudents = student.select(models::Student::as_select()).load(conn).optional()?;
+    Ok (vstudents)
+}
 pub fn find_class_by_id(
     conn: &mut MysqlConnection,
     sid: u32,
@@ -135,4 +142,34 @@ pub fn insert_new_reg(
     .get_result(conn)?;
 
     Ok(last_inserted_id)
+}
+
+pub fn insert_class_student(
+    conn: &mut MysqlConnection,
+    s: u32,
+    c: u32,
+) -> Result<(u32,u32), DbError> {
+    use crate::database::schema::class_student::dsl::*;
+    let new_cs = models::ClassStudent {
+        id_student: s,
+        id_class: c,
+    };
+
+    diesel::insert_into(class_student).values(new_cs).execute(conn)?;
+    Ok((s,c))
+}
+
+pub fn insert_prof_class(
+    conn: &mut MysqlConnection,
+    c: u32,
+    u: u32,
+) -> Result<(u32,u32), DbError> {
+    use crate::database::schema::prof_class::dsl::*;
+    let new_prof = models::ProfClass {
+        id_class: c,
+        id_user: u,
+    };
+
+    diesel::insert_into(prof_class).values(new_prof).execute(conn)?;
+    Ok((c,u))
 }

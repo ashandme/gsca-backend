@@ -72,6 +72,24 @@ pub async fn get_student(
     })
 }
 
+pub async fn get_students(
+    pool: web::Data<DbPool>,
+) -> actix_web::Result<impl Responder> {
+    let vstudent = web::block(move || {
+        // note that obtaining a connection from the pool is also potentially blocking
+        let mut conn = pool.get()?;
+
+        get_all_students(&mut conn)
+    })
+    .await?
+    .map_err(error::ErrorInternalServerError)?;
+
+    Ok(match vstudent {
+        Some(v) => HttpResponse::Ok().json(v),
+
+        None => HttpResponse::NotFound().body(format!("SORRY")),
+    })
+}
 pub async fn get_class(
     pool: web::Data<DbPool>,
     pid: web::Path<u32>,
@@ -157,3 +175,18 @@ pub async fn add_reg(
     }
 }
 
+pub async fn add_class_student(
+    pool: web::Data<DbPool>,
+    identity: Option<Identity>,
+    form: web::Json<ClassStudent>,
+) -> actix_web::Result<impl Responder> {
+    let mut conn = pool.get().unwrap();
+    match insert_class_student(
+        &mut conn,
+        form.id_student,
+        form.id_class,
+    ) {
+        Ok(x) => Ok(HttpResponse::Created().json(x)),
+        Err(e) => Err(error::ErrorInternalServerError(e)),
+    }
+}

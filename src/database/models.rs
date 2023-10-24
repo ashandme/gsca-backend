@@ -2,9 +2,9 @@ use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 
-use crate::database::schema::{class, class_day, reg, student, user};
+use crate::database::schema::{class, class_day, reg, student, user, class_student, prof_class};
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, Selectable)]
 #[diesel(table_name = student)]
 pub struct Student {
     pub id: u32,
@@ -75,6 +75,20 @@ pub struct JsonClass {
     pub year_div: String,
     pub time_out: String,
     pub time_in: String,
+}
+
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[diesel(table_name = class_student)]
+pub struct ClassStudent {
+    pub id_class: u32,
+    pub id_student: u32,
+}
+
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
+#[diesel(table_name = prof_class)]
+pub struct ProfClass {
+    pub id_class: u32,
+    pub id_user: u32,
 }
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
