@@ -47,7 +47,8 @@ pub struct User {
     pub alias: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Insertable, Serialize, Deserialize, Debug)]
+#[diesel(table_name = user)]
 pub struct NewUser {
     pub dni: i32,
     pub secret: String,

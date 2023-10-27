@@ -99,6 +99,34 @@ pub fn insert_new_class(
     Ok(last_inserted_id)
 }
 
+pub fn insert_new_user(
+    conn: &mut MysqlConnection,
+    d: i32,
+    s: &String,
+    e: &String,
+    t: &String,
+    r: &String,
+    a: &String,
+) -> Result<u32, DbError> {
+    use crate::database::schema::user::dsl::*;
+    let new_user = models::NewUser {
+        dni: d,
+        secret: bcrypt::hash(s, 12).unwrap(),
+        email: e.to_owned(),
+        tel: t.to_owned(),
+        rol: r.to_owned(),
+        alias: a.to_owned(),
+    };
+
+    diesel::insert_into(user).values(new_user).execute(conn)?;
+    let last_inserted_id: u32 = diesel::select(diesel::dsl::sql::<
+        diesel::sql_types::Unsigned<diesel::sql_types::Integer>,
+    >("LAST_INSERT_ID()"))
+    .get_result(conn)?;
+
+    Ok(last_inserted_id)
+}
+
 pub fn insert_new_class_day(
     conn: &mut MysqlConnection,
     d: i8,
