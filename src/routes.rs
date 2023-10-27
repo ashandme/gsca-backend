@@ -191,3 +191,23 @@ pub async fn add_class_student(
         Err(e) => Err(error::ErrorInternalServerError(e)),
     }
 }
+
+pub async fn create_user(
+    pool: web::Data<DbPool>,
+    identity: Option<Identity>,
+    form: web::Json<NewUser>,
+) -> actix_web::Result<impl Responder> {
+    let mut conn = pool.get().unwrap();
+    match insert_new_user(
+        &mut conn,
+        form.dni,
+        &form.secret,
+        &form.email,
+        &form.tel,
+        &form.rol,
+        &form.alias,
+    ) {
+        Ok(x) => Ok(HttpResponse::Created().json(x)),
+        Err(e) => Err(error::ErrorInternalServerError(e)),
+    }
+}

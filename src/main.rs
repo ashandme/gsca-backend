@@ -56,6 +56,7 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/class/{id_class}").route(web::get().to(routes::get_class)))
             .service(web::resource("/student").route(web::post().to(routes::add_student)))
             .service(web::resource("/class").route(web::post().to(routes::add_class)))
+            .service(web::resource("/create-user").route(web::post().to(routes::create_user)))
             .service(web::resource("/class-day").route(web::post().to(routes::add_class_day)))
             .service(web::resource("/reg").route(web::post().to(routes::add_reg)))
             .wrap(IdentityMiddleware::default())
