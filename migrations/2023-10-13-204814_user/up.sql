@@ -4,7 +4,9 @@ CREATE TABLE user (
     dni INT NOT NULL,
     secret VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
+    tel VARCHAR(32) NOT NULL,
     rol VARCHAR(16) NOT NULL,
     alias VARCHAR(32) NOT NULL,
-    UNIQUE KEY(dni)
+    UNIQUE KEY(dni),
+    UNIQUE KEY(alias)
 );

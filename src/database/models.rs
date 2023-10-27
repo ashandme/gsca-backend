@@ -10,6 +10,8 @@ pub struct Student {
     pub id: u32,
     pub id_fingerprint: Option<u32>,
     pub dni: i32,
+    pub born: NaiveDate,
+    pub tel: String,
     pub name: String,
     pub surname: String,
 }
@@ -18,6 +20,17 @@ pub struct Student {
 #[diesel(table_name = student)]
 pub struct NewStudent {
     pub dni: i32,
+    pub born: NaiveDate,
+    pub tel: String,
+    pub name: String,
+    pub surname: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct JsonStudent {
+    pub dni: i32,
+    pub born: String,
+    pub tel: String,
     pub name: String,
     pub surname: String,
 }
@@ -29,6 +42,7 @@ pub struct User {
     pub dni: i32,
     pub secret: String,
     pub email: String,
+    pub tel: String,
     pub rol: String,
     pub alias: String,
 }
@@ -38,6 +52,8 @@ pub struct NewUser {
     pub dni: i32,
     pub secret: String,
     pub email: String,
+    pub tel: String,
+    pub rol: String,
     pub alias: String,
 }
 
@@ -124,6 +140,7 @@ pub struct Reg {
     pub id: u32,
     pub id_student: u32,
     pub class_day: u32,
+    pub caption: Option<String>,
     pub time_out: NaiveDateTime,
     pub time_in: NaiveDateTime,
 }
@@ -133,6 +150,7 @@ pub struct Reg {
 pub struct NewReg {
     pub id_student: u32,
     pub class_day: u32,
+    pub caption: Option<String>,
     pub time_out: NaiveDateTime,
     pub time_in: NaiveDateTime,
 }
@@ -141,6 +159,7 @@ pub struct NewReg {
 pub struct JsonReg {
     pub id_student: u32,
     pub class_day: u32,
+    pub caption: String,
     pub time_out: String,
     pub time_in: String,
 }

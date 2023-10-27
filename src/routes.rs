@@ -114,10 +114,10 @@ pub async fn get_class(
 pub async fn add_student(
     pool: web::Data<DbPool>,
     identity: Option<Identity>,
-    form: web::Json<NewStudent>,
+    form: web::Json<JsonStudent>,
 ) -> actix_web::Result<impl Responder> {
     let mut conn = pool.get().unwrap();
-    match insert_new_student(&mut conn, form.dni, &form.name, &form.surname) {
+    match insert_new_student(&mut conn, form.dni, &form.born, &form.tel, &form.name, &form.surname) {
         Ok(x) => Ok(HttpResponse::Created().json(x)),
         Err(e) => Err(error::ErrorInternalServerError(e)),
     }
@@ -168,6 +168,7 @@ pub async fn add_reg(
         &mut conn,
         form.id_student,
         form.class_day,
+        Some(&form.caption),
         (&form.time_out, &form.time_in),
     ) {
         Ok(x) => Ok(HttpResponse::Created().json(x)),

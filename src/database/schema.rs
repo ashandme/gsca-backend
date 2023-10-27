@@ -42,6 +42,8 @@ diesel::table! {
     reg (id) {
         id -> Unsigned<Integer>,
         id_student -> Unsigned<Integer>,
+        #[max_length = 255]
+        caption -> Nullable<Varchar>,
         time_in -> Datetime,
         time_out -> Datetime,
         class_day -> Unsigned<Integer>,
@@ -53,6 +55,9 @@ diesel::table! {
         id -> Unsigned<Integer>,
         id_fingerprint -> Nullable<Unsigned<Integer>>,
         dni -> Integer,
+        born -> Date,
+        #[max_length = 32]
+        tel -> Varchar,
         #[max_length = 20]
         name -> Varchar,
         #[max_length = 20]
@@ -68,6 +73,8 @@ diesel::table! {
         secret -> Varchar,
         #[max_length = 255]
         email -> Varchar,
+        #[max_length = 32]
+        tel -> Varchar,
         #[max_length = 16]
         rol -> Varchar,
         #[max_length = 32]

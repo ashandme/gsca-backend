@@ -1,5 +1,4 @@
 use diesel::prelude::*;
-// use uuid::Uuid;
 use crate::database::models;
 use chrono::{NaiveDate, NaiveDateTime, NaiveTime};
 
@@ -50,12 +49,16 @@ pub fn get_user(conn: &mut MysqlConnection, nm: String) -> Result<Option<models:
 pub fn insert_new_student(
     conn: &mut MysqlConnection,
     sdni: i32,
+    b: &String,
+    t: &String,
     nm: &String,
     snm: &String,
 ) -> Result<u32, DbError> {
     use crate::database::schema::student::dsl::*;
     let new_student = models::NewStudent {
         dni: sdni.to_owned(),
+        born: NaiveDate::parse_from_str(b.as_str(), "%d-%m-%Y").unwrap(),
+        tel: t.to_owned(),
         name: nm.to_owned(),
         surname: snm.to_owned(),
     };
@@ -125,12 +128,14 @@ pub fn insert_new_reg(
     conn: &mut MysqlConnection,
     s: u32,
     cd: u32,
+    c: Option<&String>,
     tts: (&String, &String),
 ) -> Result<u32, DbError> {
     use crate::database::schema::reg::dsl::*;
     let new_reg = models::NewReg {
         id_student: s,
         class_day: cd,
+        caption: c.cloned(),
         time_out: NaiveDateTime::parse_from_str(tts.0.as_str(), "%d-%m-%Y %H:%M:%S").unwrap(),
         time_in: NaiveDateTime::parse_from_str(tts.1.as_str(), "%d-%m-%Y %H:%M:%S").unwrap(),
     };
