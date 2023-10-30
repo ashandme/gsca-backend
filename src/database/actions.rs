@@ -20,7 +20,7 @@ pub fn find_student_by_id(
 }
 
 // in the beginning it was .select(models::Student::as_selected()) as it was Selectable
-pub fn get_all_students(
+pub fn find_all_students(
     conn: &mut MysqlConnection,
 ) -> Result<Option<Vec<models::Student>>, DbError> {
     use crate::database::schema::student::dsl::*;
@@ -28,7 +28,7 @@ pub fn get_all_students(
     Ok (vstudents)
 }
 
-pub fn get_all_clases_by(
+pub fn find_all_classes_by(
     conn: &mut MysqlConnection,
     u: u32,
 ) -> Result<Vec<models::Class>, DbError> {
@@ -36,7 +36,7 @@ pub fn get_all_clases_by(
     Ok (prof_class.filter(id_user.eq(u)).inner_join(class).select(class::all_columns()).load::<models::Class>(conn)?)
 }
 
-pub fn get_all_students_in(
+pub fn find_all_students_in(
     conn: &mut MysqlConnection,
     c: u32,
 ) -> Result<Vec<models::Student>, DbError> {
@@ -54,7 +54,7 @@ pub fn find_class_by_id(
     Ok(iclass)
 }
 
-pub fn get_all_classes(
+pub fn find_all_classes(
     conn: &mut MysqlConnection,
 ) -> Result<Option<Vec<models::Class>>, DbError> {
     use crate::database::schema::class::dsl::*;
@@ -62,13 +62,21 @@ pub fn get_all_classes(
     Ok (vclasses)
 }
 
-pub fn get_user(conn: &mut MysqlConnection, nm: String) -> Result<Option<models::User>, DbError> {
+pub fn find_user_named(conn: &mut MysqlConnection, nm: String) -> Result<Option<models::User>, DbError> {
     use crate::database::schema::user::dsl::*;
     let iuser = user
         .filter(alias.eq(nm))
         .first::<models::User>(conn)
         .optional()?;
     Ok(iuser)
+}
+
+pub fn find_regs_by(
+    conn: &mut MysqlConnection,
+    s: u32,
+) -> Result<Vec<models::Reg>, DbError> {
+    use crate::database::schema::reg::dsl::*;
+    Ok (reg.filter(id_student.eq(s)).load(conn)?)
 }
 
 // INSERTIONS

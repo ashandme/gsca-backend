@@ -140,10 +140,10 @@ pub struct JsonClassDay {
 pub struct Reg {
     pub id: u32,
     pub id_student: u32,
-    pub class_day: u32,
     pub caption: Option<String>,
     pub time_out: NaiveDateTime,
     pub time_in: NaiveDateTime,
+    pub class_day: u32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Insertable)]

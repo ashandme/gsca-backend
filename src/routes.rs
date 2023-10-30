@@ -26,7 +26,7 @@ pub async fn login(
     let log_user = form.into_inner();
     let fuser = web::block(move || {
         let mut conn = pool.get()?;
-        get_user(&mut conn, log_user.alias)
+        find_user_named(&mut conn, log_user.alias)
     })
     .await?
     .map_err(error::ErrorInternalServerError)?;
@@ -79,7 +79,7 @@ pub async fn get_students(
         // note that obtaining a connection from the pool is also potentially blocking
         let mut conn = pool.get()?;
 
-        get_all_students(&mut conn)
+        find_all_students(&mut conn)
     })
     .await?
     .map_err(error::ErrorInternalServerError)?;
@@ -90,6 +90,7 @@ pub async fn get_students(
         None => HttpResponse::NotFound().body(format!("SORRY")),
     })
 }
+
 pub async fn get_class(
     pool: web::Data<DbPool>,
     pid: web::Path<u32>,
@@ -109,6 +110,76 @@ pub async fn get_class(
 
         None => HttpResponse::NotFound().body(format!("No user found with ID: {id}")),
     })
+}
+
+pub async fn get_classes(
+    pool: web::Data<DbPool>,
+    identity: Option<Identity>,
+) -> actix_web::Result<impl Responder> {
+    let mut conn = pool.get().unwrap();
+    let id = match identity.map(|id| id.id()) {
+        None => "anonymous".to_owned(),
+        Some(Ok(id)) => id,
+        Some(Err(err)) => return Err(error::ErrorInternalServerError(err)),
+    };
+    let user = find_user_named(&mut conn, id);
+    match user.unwrap() {
+	None => {
+	    let fclass = web::block(move || {
+		let mut conn = pool.get()?;
+
+		find_all_classes(&mut conn)
+	    })
+		.await?
+		.map_err(error::ErrorInternalServerError)?;
+
+	    Ok(match fclass {
+		Some(fclass) => HttpResponse::Ok().json(fclass),
+
+		None => HttpResponse::NotFound().body(format!("No class found")),
+	    })
+	}
+	Some(x) => {
+	    let myclass = web::block(move || {
+		let mut conn = pool.get()?;
+
+		find_all_classes_by(&mut conn, x.id)
+	    })
+		.await?
+		.map_err(error::ErrorInternalServerError)?;
+	    Ok(HttpResponse::Ok().json(myclass))
+	}
+    }
+}
+
+pub async fn get_class_students(
+    pool: web::Data<DbPool>,
+    pid: web::Path<u32>,
+) -> actix_web::Result<impl Responder> {
+    let vstudent = web::block(move || {
+        // note that obtaining a connection from the pool is also potentially blocking
+        let mut conn = pool.get()?;
+
+        find_all_students_in(&mut conn, pid.into_inner())
+    })
+    .await?
+	.map_err(error::ErrorInternalServerError)?;
+    Ok(HttpResponse::Ok().json(vstudent))
+}
+
+pub async fn get_student_regs(
+    pool: web::Data<DbPool>,
+    pid: web::Path<u32>,
+) -> actix_web::Result<impl Responder> {
+    let vreg = web::block(move || {
+        // note that obtaining a connection from the pool is also potentially blocking
+        let mut conn = pool.get()?;
+
+        find_regs_by(&mut conn, pid.into_inner())
+    })
+    .await?
+	.map_err(error::ErrorInternalServerError)?;
+    Ok(HttpResponse::Ok().json(vreg))
 }
 
 pub async fn add_student(
