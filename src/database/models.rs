@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::database::schema::{class, class_day, reg, student, user, class_student, prof_class};
 
-#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable, Selectable)]
+#[derive(Debug, Clone, Serialize, Deserialize, Queryable, Insertable)]
 #[diesel(table_name = student)]
 pub struct Student {
     pub id: u32,

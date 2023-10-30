@@ -19,22 +19,47 @@ pub fn find_student_by_id(
     Ok(istudent)
 }
 
+// in the beginning it was .select(models::Student::as_selected()) as it was Selectable
 pub fn get_all_students(
     conn: &mut MysqlConnection,
 ) -> Result<Option<Vec<models::Student>>, DbError> {
     use crate::database::schema::student::dsl::*;
-    let vstudents = student.select(models::Student::as_select()).load(conn).optional()?;
+    let vstudents = student.load(conn).optional()?;
     Ok (vstudents)
 }
+
+pub fn get_all_clases_by(
+    conn: &mut MysqlConnection,
+    u: u32,
+) -> Result<Vec<models::Class>, DbError> {
+    use crate::database::schema::{ prof_class::dsl::*, class::dsl::*};
+    Ok (prof_class.filter(id_user.eq(u)).inner_join(class).select(class::all_columns()).load::<models::Class>(conn)?)
+}
+
+pub fn get_all_students_in(
+    conn: &mut MysqlConnection,
+    c: u32,
+) -> Result<Vec<models::Student>, DbError> {
+    use crate::database::schema::{class_student::dsl::*, student::dsl::*};
+    Ok (class_student.filter(id_class.eq(c)).inner_join(student).select(student::all_columns()).load::<models::Student>(conn)?)
+}
+
 pub fn find_class_by_id(
     conn: &mut MysqlConnection,
     sid: u32,
 ) -> Result<Option<models::Class>, DbError> {
     use crate::database::schema::class::dsl::*;
-
     let iclass = class.find(sid).first::<models::Class>(conn).optional()?;
 
     Ok(iclass)
+}
+
+pub fn get_all_classes(
+    conn: &mut MysqlConnection,
+) -> Result<Option<Vec<models::Class>>, DbError> {
+    use crate::database::schema::class::dsl::*;
+    let vclasses  = class.load(conn).optional()?;
+    Ok (vclasses)
 }
 
 pub fn get_user(conn: &mut MysqlConnection, nm: String) -> Result<Option<models::User>, DbError> {
@@ -45,7 +70,9 @@ pub fn get_user(conn: &mut MysqlConnection, nm: String) -> Result<Option<models:
         .optional()?;
     Ok(iuser)
 }
-/// Run query using Diesel to insert a new database row and return the result.
+
+// INSERTIONS
+
 pub fn insert_new_student(
     conn: &mut MysqlConnection,
     sdni: i32,
@@ -143,6 +170,28 @@ pub fn insert_new_class_day(
 
     diesel::insert_into(class_day)
         .values(new_class_day)
+        .execute(conn)?;
+    let last_inserted_id: u32 = diesel::select(diesel::dsl::sql::<
+        diesel::sql_types::Unsigned<diesel::sql_types::Integer>,
+    >("LAST_INSERT_ID()"))
+    .get_result(conn)?;
+
+    Ok(last_inserted_id)
+}
+
+pub fn insert_prof(
+    conn: &mut MysqlConnection,
+    c: u32,
+    u: u32,
+) -> Result<u32, DbError> {
+    use crate::database::schema::prof_class::dsl::*;
+    let new_prof = models::ProfClass {
+        id_class: c,
+	id_user: u,
+    };
+
+    diesel::insert_into(prof_class)
+        .values(new_prof)
         .execute(conn)?;
     let last_inserted_id: u32 = diesel::select(diesel::dsl::sql::<
         diesel::sql_types::Unsigned<diesel::sql_types::Integer>,
