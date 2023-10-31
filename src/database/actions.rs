@@ -79,6 +79,22 @@ pub fn find_regs_by(
     Ok (reg.filter(id_student.eq(s)).load(conn)?)
 }
 
+pub fn find_regs_in(
+    conn: &mut MysqlConnection,
+    c: u32,
+) -> Result<Vec<models::Reg>, DbError> {
+    use crate::database::schema::{reg::dsl::*, class_day::dsl::{* ,class_day as cd}};
+    Ok (cd.filter(id_class.eq(c)).inner_join(reg).select(reg::all_columns()).load::<models::Reg>(conn)?)
+}
+
+pub fn find_all_users(
+    conn: &mut MysqlConnection,
+) -> Result<Option<Vec<models::User>>, DbError> {
+    use crate::database::schema::user::dsl::*;
+    let vu = user.load(conn).optional()?;
+    Ok (vu)
+}
+
 // INSERTIONS
 
 pub fn insert_new_student(

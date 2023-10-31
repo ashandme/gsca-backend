@@ -10,7 +10,6 @@ use actix_web::{
     middleware::{Logger, NormalizePath},
     post, web, http, App, HttpResponse, HttpServer, Responder,
 };
-
 use diesel::{
     mysql::MysqlConnection,
     prelude::*,
@@ -49,15 +48,14 @@ async fn main() -> std::io::Result<()> {
             .service(web::resource("/login").route(web::post().to(routes::login)))
             .service(web::resource("/logout").route(web::post().to(routes::logout)))
             .service(web::resource("/").route(web::get().to(routes::is_logged)))
-            .service(
-                web::resource("/student/{id_student}").route(web::get().to(routes::get_student)))
+            .service(web::resource("/student/{id_student}").route(web::get().to(routes::get_student)))
             .service(web::resource("/student/{id_student}/regs").route(web::get().to(routes::get_student_regs)))
-            .service(
-                web::resource("/students").route(web::get().to(routes::get_students)))
+            .service(web::resource("/students").route(web::get().to(routes::get_students)))
             .service(web::resource("/class/{id_class}").route(web::get().to(routes::get_class)))
             .service(web::resource("/class/{id_class}").route(web::get().to(routes::get_class)))
 	    .service(web::resource("/class/{id_class}/students").route(web::get().to(routes::get_class_students)))
-    .service(web::resource("/classes").route(web::get().to(routes::get_classes)))
+	    .service(web::resource("/classes").route(web::get().to(routes::get_classes)))
+	    .service(web::resource("/users").route(web::get().to(routes::get_users)))
             .service(web::resource("/student").route(web::post().to(routes::add_student)))
             .service(web::resource("/class").route(web::post().to(routes::add_class)))
             .service(web::resource("/create-user").route(web::post().to(routes::create_user)))

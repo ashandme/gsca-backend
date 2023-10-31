@@ -91,6 +91,25 @@ pub async fn get_students(
     })
 }
 
+pub async fn get_users(
+    pool: web::Data<DbPool>,
+) -> actix_web::Result<impl Responder> {
+    let users = web::block(move || {
+        // note that obtaining a connection from the pool is also potentially blocking
+        let mut conn = pool.get()?;
+
+        find_all_users(&mut conn)
+    })
+    .await?
+    .map_err(error::ErrorInternalServerError)?;
+
+    Ok(match users {
+        Some(v) => HttpResponse::Ok().json(v),
+
+        None => HttpResponse::NotFound().body(format!("SORRY")),
+    })
+}
+
 pub async fn get_class(
     pool: web::Data<DbPool>,
     pid: web::Path<u32>,
