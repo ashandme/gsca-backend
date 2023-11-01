@@ -13,5 +13,5 @@ ENV DATABASE_URL=mysql://admin:admin@localhost/base
 
 CMD bash -c "diesel setup && gsca" 
 
-EXPOSE 8080
+EXPOSE 3000
 
